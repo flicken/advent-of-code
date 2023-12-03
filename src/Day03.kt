@@ -66,8 +66,8 @@ fun main() {
     check(part1(testInput) == 4361)
 
     val input = readInput("${day}")
-    part1(input).println()
+    timeAndPrint { part1(input) }
 
     check(part2(testInput) == 467835)
-    part2(input).println()
+    timeAndPrint { part2(input) }
 }
