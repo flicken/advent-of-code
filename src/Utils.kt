@@ -21,6 +21,11 @@ fun String.md5() = BigInteger(1, MessageDigest.getInstance("MD5").digest(toByteA
  */
 fun Any?.println() = println(this)
 
+fun Any?.assertEqual(that: Any): Any {
+    check(this == that) { "Expect ${this}, but got ${that}" }
+    return this;
+}
+
 // inline fun <T> measureTimedValue(
 //    block: () -> T
 //): TimedValue<T>
