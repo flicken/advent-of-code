@@ -12,12 +12,11 @@ fun main() {
     }
 
     val testInput = readInput("${day}_test")
-    check(part1(testInput) == Int.MAX_VALUE)
+    part1(testInput).assertEqual(0)
 
     val input = readInput("${day}")
     timeAndPrint { part1(input) }
 
-    check(part2(testInput) == Int.MAX_VALUE)
+    part2(testInput).assertEqual(0)
     timeAndPrint { part2(input) }
-
 }
