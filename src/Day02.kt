@@ -15,7 +15,7 @@ fun main() {
             val parts = line.split("; ", ": ");
             val game = parts[0].split(" ")[1].toInt();
 
-            val allPass = parts.drop(1).map{showingToMap(it)}.all { showing ->
+            val allPass = parts.drop(1).map { showingToMap(it) }.all { showing ->
                 showing.all { (color, count) ->
                     part1Max.getValue(color) >= count
                 }
@@ -29,14 +29,14 @@ fun main() {
         return input.sumOf { line ->
             val parts = line.split("; ", ": ")
 
-            val maximums = parts.drop(1).map{showingToMap(it)}.reduce { maxNeeded, cur ->
+            val maximums = parts.drop(1).map { showingToMap(it) }.reduce { maxNeeded, cur ->
                 part1Max.keys.map { color ->
                     color to max(maxNeeded.getOrDefault(color, 0), cur.getOrDefault(color, 0))
                 }.toMap()
             };
 
-            maximums.values.reduce{a, b -> a * b}
-        };
+            maximums.values.reduce { a, b -> a * b }
+        }
     }
 
     // test if implementation meets criteria from the description, like:

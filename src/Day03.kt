@@ -18,12 +18,12 @@ fun main() {
                 Part(match.value, i, match.range)
             }
         }
-        println("Found parts ${allParts.map{it.value}}")
+        println("Found parts ${allParts.map { it.value }}")
         val validParts = allParts.filter { part ->
             hasSymbol(part.range, input.subList(max(0, part.line - 1), min(part.line + 2, input.size)))
         }
         println("Valid")
-        validParts.forEach{println("\t" + it)}
+        validParts.forEach { println("\t" + it) }
         return validParts.sumOf { it.value.toInt() }
 
     }
@@ -48,8 +48,8 @@ fun main() {
             }
         }
 
-        return allStars.sumOf {star ->
-            val adjacentParts = allParts.filter{
+        return allStars.sumOf { star ->
+            val adjacentParts = allParts.filter {
                 adjacent(it, star)
             }
 
@@ -60,7 +60,7 @@ fun main() {
             }
         }
     }
-
+    
     // test if implementation meets criteria from the description, like:
     val testInput = readInput("${day}_test")
     check(part1(testInput) == 4361)

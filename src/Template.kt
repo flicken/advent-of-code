@@ -1,10 +1,8 @@
-import kotlin.math.max
-
 fun main() {
-    val day = "";
+    val day = ""
 
     fun part1(input: List<String>): Int {
-       return -1;
+        return -1
     }
 
     fun part2(input: List<String>): Int {
