@@ -1,5 +1,5 @@
 fun main() {
-    val day = "06"
+    val day = "Day06"
 
     fun List<String>.toRaces(): List<Pair<Long, Long>> {
         return this.map {
@@ -26,10 +26,10 @@ fun main() {
         return part1(input.map { it.replace(" ", "") })
     }
 
-    val testInput = readInput("Day_${day}_test")
+    val testInput = readInput("${day}_test")
     part1(testInput).assertEqual(288)
 
-    val input = readInput("Day_${day}")
+    val input = readInput(day)
     timeAndPrint { part1(input) }
 
     part2(testInput).assertEqual(71503)
