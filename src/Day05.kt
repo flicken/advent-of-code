@@ -1,20 +1,5 @@
 fun toRange(src: Long, len: Long) = LongRange(src, src + len - 1)
 
-
-/*
-    a....b
-       c....d
-    a..c, c..b, b..d
-
-    a...b
-           c...d
-    a...b, empty, c...d
-
-       a...b
-     c.......d
-
- */
-
 data class RangeOverlap(val overlap: LongRange?, val remaining: List<LongRange>)
 
 fun LongRange.overlap(that: LongRange): LongRange {
