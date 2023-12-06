@@ -1,5 +1,5 @@
 fun main() {
-    val day = "Day___DAY__"
+    val day = "Day__DAY__"
 
     fun part1(input: List<String>): Int {
         return -1
@@ -12,7 +12,7 @@ fun main() {
     val testInput = readInput("${day}_test")
     part1(testInput).assertEqual(-42)
 
-    val input = readInput("${day}")
+    val input = readInput(day)
     timeAndPrint { part1(input) }
 
     part2(testInput).assertEqual(-43)
