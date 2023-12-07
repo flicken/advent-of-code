@@ -21,6 +21,11 @@ fun String.md5() = BigInteger(1, MessageDigest.getInstance("MD5").digest(toByteA
  */
 fun Any?.println() = println(this)
 
+fun <T : Any, R> T.tap(tap: (T) -> R): T {
+    tap(this)
+    return this
+}
+
 fun Any.assertEqual(that: Any): Any {
     check(this == that) { "Got ${this}, but expected ${that}" }
     return this;
