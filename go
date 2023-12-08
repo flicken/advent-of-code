@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Get the current day or use the provided day argument
-day=$(printf "%02d" "${1:-$(date +%d)}")
+day=${1:-$(date +%d)}
 
 # Copy the template file to the new file and replace "__DAY__" with the current day
 cp src/Template.kt src/"Day${day}.kt"
