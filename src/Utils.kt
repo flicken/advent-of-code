@@ -26,6 +26,11 @@ fun <T : Any, R> T.tap(tap: (T) -> R): T {
     return this
 }
 
+fun <T : Any> T.p(): T {
+    println(this)
+    return this
+}
+
 fun Any.assertEqual(that: Any): Any {
     check(this == that) { "Got ${this}, but expected ${that}" }
     return this;
