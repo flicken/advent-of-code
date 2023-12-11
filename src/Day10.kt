@@ -99,16 +99,17 @@ fun main() {
                 } else {
                     // Use raycasting inside outside test
                     // See https://iq.opengenus.org/inside-outside-test/
-                    val segments = line.substring(0, col)
+                    val crossings = line.substring(0, col)
                         .mapIndexed<Any> { cl, it ->
                             val el = Location(row, cl)
                             if (outsides.contains(el) || insides.contains(el)) " " else it
                         }
                         .joinToString("")
                         .replace("S", startSymbol.toString())
-                        .replace("[-. ]".toRegex(), "").replace("FJ|L7".toRegex(), "|")
+                        .replace("[-. ]".toRegex(), "")
+                        .replace("FJ|L7".toRegex(), "|")
                         .replace("F7|LJ".toRegex(), "||")
-                    if (segments.length % 2 == 0) {
+                    if (crossings.length % 2 == 0) {
                         outsides.add(l)
                     } else {
                         insides.add(l)
