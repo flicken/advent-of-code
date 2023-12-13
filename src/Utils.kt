@@ -31,9 +31,15 @@ fun <T : Any> T.p(): T {
     return this
 }
 
-fun Any.assertEqual(that: Any): Any {
+fun <T : Any> T.assertEqual(that: T): T {
     check(this == that) { "Got ${this}, but expected ${that}" }
     return this;
+}
+
+fun <T> List<T>.replaceAt(index: Int, block: (T) -> T): List<T> {
+    return this.mapIndexed { row, line ->
+        if (row == index) block(line) else line
+    }
 }
 
 // inline fun <T> measureTimedValue(
@@ -43,4 +49,25 @@ fun <T> timeAndPrint(block: () -> T): T {
     val (value, timeTaken) = measureTimedValue(block);
     println("${value} in ${timeTaken}")
     return value;
+}
+
+
+// From https://stackoverflow.com/a/76533918
+fun <T> List<List<T>>.transpose(): List<List<T>> {
+    return (this[0].indices).map { i -> (this.indices).map { j -> this[j][i] } }
+}
+
+inline fun <reified T> Array<Array<T>>.transpose(): Array<Array<T>> {
+    return Array(this[0].size) { i -> Array(this.size) { j -> this[j][i] } }
+}
+
+fun <T> List<T>.splitBy(block: (T) -> Boolean): List<List<T>> {
+    val iter = this.iterator()
+    return generateSequence {
+        if (iter.hasNext()) {
+            generateSequence { if (iter.hasNext()) iter.next().takeUnless(block) else null }.toList()
+        } else {
+            null
+        }
+    }.toList()
 }
