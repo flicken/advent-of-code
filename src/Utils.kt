@@ -71,3 +71,8 @@ fun <T> List<T>.splitBy(block: (T) -> Boolean): List<List<T>> {
         }
     }.toList()
 }
+
+fun String.splitAt(n: Int): Pair<String, String> {
+    assert(n >= 0, { "${n} must be a positive number" })
+    return Pair(this.take(n), this.drop(n))
+}
