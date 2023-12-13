@@ -1,9 +1,5 @@
-import java.io.File
-import kotlin.math.abs
-
 fun main() {
     val day = "Day12"
-    val pw = File("out.txt").printWriter()
 
     fun List<Long?>.productOfOrNull(): Long? {
         return this.reduce<Long?, Long?> { a, b ->
@@ -29,28 +25,11 @@ fun main() {
     }
 
     fun findSolutions(problems: List<Problem>, tryBoth: Boolean = false): List<Long> {
-        println("Trying $tryBoth} ${problems.size} ${problems[0]}")
         val solutions = mutableMapOf(
             Problem("", listOf()) to 0L,
         )
 
-        var currentIndent: String = ""
-        fun indent(n: Int) {
-            if (n < 0) {
-                currentIndent = currentIndent.dropLast(abs(n))
-            } else {
-                currentIndent = currentIndent + String(CharArray(n, { ' ' }))
-            }
-        }
-
-        fun pl(s: Any) {
-//            println(currentIndent + s)
-        }
-
-
         fun setSolution(problem: Problem, solution: Long): Long {
-            indent(-2)
-            pl("${solution} <- ${problem} Solved")
             solutions.put(problem, solution)
             return solution
         }
@@ -58,14 +37,11 @@ fun main() {
         fun dropBins(problem: Problem) = problem.bins.drop(1).dropWhile { it == '.' }
 
         fun countIt(line: String): List<Int> {
-            val counts = line.split(".", "?").map { it.length }.filter { it > 0 }
-//            counts.println()
-            return counts;
+            return line.split(".", "?").map { it.length }.filter { it > 0 };
         }
 
         fun generateSolution(bins: String, n: Int, places: Int): String {
             val chars = (0..places).map { if (n and (1 shl it) != 0) '#' else '.' }
-//            println("Chars ${n} ${chars.joinToString("")} ${bins}")
             var i = 0
             return bins.map {
                 when (it) {
@@ -82,7 +58,6 @@ fun main() {
         fun Problem.generateAllSolutions(): List<String> {
             val places = this.bins.count { it == '?' }
 
-            var count = 0
             val max = (1 shl places) - 1
 
             return (0..max).map { it ->
@@ -90,41 +65,34 @@ fun main() {
             }.filter { countIt(it) == this.pkgs }
         }
 
-        fun findSolutionCount2(problem: Problem, line: String? = null): Long {
-            val places = problem.bins.count { it == '?' }
+        fun findSolutionCountSlow(problem: Problem, line: String? = null): Long {
+            return problem.generateAllSolutions().size.toLong()
+        }
 
-            var count = 0
-            val max = (1 shl places) - 1
-
-            return (0..max).count {
-                countIt(generateSolution(problem.bins, it, places)) == problem.pkgs
-            }.toLong()
+        fun compareSlowSolution(problem: Problem, count: Long) {
+            val countSlow = findSolutionCountSlow(problem, problem.bins)
+            if (countSlow != count) {
+                println("Disagreement ${countSlow} != ${count} on ${problem} ${problem.line()}")
+                println(problem.generateAllSolutions().joinToString("\n"))
+                println(solutions.entries.joinToString("\n"))
+            }
         }
 
         fun findSolutionCount(problem: Problem, line: String? = null): Long {
-            pl(problem)
-            indent(2)
             if (problem.pkgs.isEmpty()) {
-                indent(-2)
-                pl("0 <- Base case")
                 return 0
             }
 
             if (solutions.contains(problem)) {
-                indent(-2)
-                pl("${solutions.getValue(problem)} <- ${problem} Cached")
                 return solutions.getValue(problem)
             }
 
             val binLengthNeeded = problem.pkgs.sum() + problem.pkgs.size - 1
             if (problem.bins.length < binLengthNeeded) {
-                pl("Too short")
                 return setSolution(problem, 0)
             }
 
             if (problem.pkgs.size == 1) {
-                pl("Base case 1")
-
                 // Take first pkg check if this matches
                 val pkg = problem.pkgs.first()
                 val matches = "^[#?]{${pkg}}[.?]+$"
@@ -137,55 +105,41 @@ fun main() {
                             problem.pkgs
                         )
                     ) else 0
-                val solution = shiftCounts + isMatch
-                pl("${solution} = ${isMatch} . ${shiftCounts} ${matches} -> ${problem.line()}")
-                return setSolution(problem, solution)
+                return setSolution(problem, shiftCounts + isMatch)
             }
 
-            // Take first pkg check if this matches
+            // More than one to fit in
             val pkg = problem.pkgs.first()
-            val matches = "^[#?]{${pkg}}([^#].*|$)"
+            val matches = "^[#?]{${pkg}}[^#].*"
             val isMatch = if (problem.bins.matches(matches.toRegex())) 1 else 0
-            pl("Recurse ${isMatch} ${matches}")
-            // Recurse both sides
 
+            // Recurse in both directions (drop a package, drop start of bins)
             val subCounts =
                 if (isMatch == 1) {
                     val recurseLeftBins = problem.bins.drop(pkg + 1)
-//                    println("xxx ${problem.bins.splitAt(pkg + 1)} <- ${problem.bins} ${problem.pkgs[0]}")
                     findSolutionCount(Problem(recurseLeftBins, problem.pkgs.drop(1)))
                 } else {
                     0
                 }
             val shiftCounts =
                 if (!problem.bins.startsWith("#")) findSolutionCount(Problem(dropBins(problem), problem.pkgs)) else 0
-            val solution = shiftCounts + subCounts
-            pl("${solution} = ${isMatch} ${subCounts} ${shiftCounts} ${matches} -> ${problem.line()}")
-            return setSolution(problem, solution)
+            return setSolution(problem, shiftCounts + subCounts)
         }
 
         return problems.map { problem ->
+            val count = findSolutionCount(problem, problem.bins)
             if (tryBoth) {
-                val count = findSolutionCount2(problem, problem.bins)
-                val count1 = findSolutionCount(problem, problem.bins)
-                if (count != count1) {
-                    println("Disagreement ${count} != ${count1} on ${problem} ${problem.line()}")
-                    pw.println(problem.line())
-                    println(problem.generateAllSolutions().joinToString("\n"))
-                    println(solutions.entries.joinToString("\n"))
-                }
-                if (count == 0L) {
-                    throw Exception(
-                        "Cannot find solution to ${problem} ${problem.line()}\n${
-                            problem.generateAllSolutions().joinToString("\n")
-                        }"
-                    )
-                }
-//            println("--> ${count} ${line}")
-                count1
-            } else {
-                findSolutionCount(problem, problem.bins)
+                compareSlowSolution(problem, count)
             }
+            if (count == 0L) {
+                throw Exception(
+                    "Cannot find solution to ${problem} ${problem.line()}\n${
+                        problem.generateAllSolutions().joinToString("\n")
+                    }"
+                )
+            }
+
+            count
         }
     }
 
@@ -200,17 +154,6 @@ fun main() {
         }.map(::parseProblem), tryBoth).sum()
     }
 
-//    part1(listOf("?# 1")).assertEqual(1)
-//    part1(listOf("????#??.?# 1,3,1")).assertEqual(6)
-//    part1(listOf("#??##???. 6")).assertEqual(1)
-    // ????#??.?# 1,3,1
-    // #.###....#
-    // #..###...#
-    // #...###..#
-    // .#.###...#
-    // .#..###..#
-
-//    part1(listOf("??.?#??##???. 1,6")).assertEqual(5)
     part1(listOf("?###??????? 3,2,1")).assertEqual(6)
     part1(listOf("??#????#?. 4,1")).assertEqual(3)
     part1(readInput("Day12_problems")).assertEqual(83)
@@ -223,14 +166,8 @@ fun main() {
     part1(testInput).assertEqual(21L)
 
     val input = readInput(day)
-    timeAndPrint { part1(input, false) }
+    timeAndPrint { part1(input) }
 
-    listOf(
-        part2(listOf(".??..??...?##. 1,1,3")),
-        part2(listOf("????.#...#... 4,1,1")),
-        part2(listOf("?###???????? 3,2,1")),
-    ).assertEqual(listOf(16384L, 16L, 506250L))
-
-    part2(testInput, false).assertEqual(525152)
+    part2(testInput).assertEqual(525152)
     timeAndPrint { part2(input) }
 }
