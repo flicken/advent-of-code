@@ -82,7 +82,3 @@ fun main() {
     part2(readInput("${day}_test2")).assertEqual(10)
     timeAndPrint { part2(input) }
 }
-
-private fun List<String>.transpose(): List<String> {
-    return this.map { it.toCharArray().toList() }.transpose().map { it.toCharArray().concatToString() }
-}

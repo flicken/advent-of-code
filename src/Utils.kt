@@ -51,14 +51,16 @@ fun <T> timeAndPrint(block: () -> T): T {
     return value;
 }
 
-
-// From https://stackoverflow.com/a/76533918
-fun <T> List<List<T>>.transpose(): List<List<T>> {
-    return (this[0].indices).map { i -> (this.indices).map { j -> this[j][i] } }
+fun List<String>.transpose(): List<String> {
+    val a = Array(this[0].length) { CharArray(size) }
+    indices.forEach { y -> (0..<this[0].length).forEach { x -> a[x][y] = this[y][x] } }
+    return a.map { it.joinToString("") }
 }
 
-inline fun <reified T> Array<Array<T>>.transpose(): Array<Array<T>> {
-    return Array(this[0].size) { i -> Array(this.size) { j -> this[j][i] } }
+fun List<CharArray>.transposeCharArray(): List<CharArray> {
+    val a = List(this[0].size) { CharArray(size) }
+    indices.forEach { y -> (0..<this[0].size).forEach { x -> a[x][y] = this[y][x] } }
+    return a
 }
 
 fun <T> List<T>.splitBy(block: (T) -> Boolean): List<List<T>> {

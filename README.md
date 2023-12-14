@@ -23,3 +23,12 @@ If you're stuck with Kotlin-specific questions or anything related to this templ
 [kotlin]: https://kotlinlang.org
 [slack]: https://surveys.jetbrains.com/s3/kotlin-slack-sign-up
 [template]: https://github.com/kotlin-hands-on/advent-of-code-kotlin-template
+
+
+# Personal notes:
+
+## Technique to solve part 2
+1. Solve part 1 using a slow, naive algorithm
+2. Attempt to solve part 2 with a faster, but buggy algorithm
+3. Use problems + solutions solved via slow naive algorithm to find edge cases in faster buggy solution.
+
