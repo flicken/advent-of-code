@@ -73,22 +73,26 @@ fun main() {
         val calcCycles = 1_000_000_000
 
         // Hack for advent of code inputs
-        val cycleSize = if (platform.size == 100) 14 else 7
+        val minCycleSize = 2
         var currentCycle = platform
+        var cycleSize = 0
 
         val loads = mutableListOf<Int>()
-        while (loads.size < calcCycles) {
+        loop@ while (loads.size < calcCycles) {
             currentCycle = cycle(currentCycle)
             loads.add(calculateLoad(currentCycle))
-            val lastCycle = loads.takeLast(cycleSize)
-            val prevCycle = loads.takeLast(2 * cycleSize).dropLast(cycleSize)
-            if (prevCycle.isNotEmpty() && lastCycle == prevCycle) {
-                println("Found cycle at ${loads.size} of length ${prevCycle.size} ${prevCycle} ")
-                break
+            cycleSize = minCycleSize - 1
+
+            while (cycleSize < loads.size / 2) {
+                cycleSize += 1
+                val lastCycle = loads.takeLast(cycleSize)
+                val prevCycle = loads.takeLast(2 * cycleSize).dropLast(cycleSize)
+                if (prevCycle.isNotEmpty() && lastCycle == prevCycle) {
+                    println("Found cycle at ${loads.size} of length ${prevCycle.size} ${prevCycle} ")
+                    break@loop
+                }
             }
         }
-
-        printPlatform(currentCycle)
 
         val cycleNum = loads.size + 1
         val findAt = (calcCycles - cycleNum) % cycleSize + (cycleNum - cycleSize) - 1
