@@ -11,6 +11,24 @@ data class Location(val row: Int, val col: Int) {
 
 enum class Direction {
     Up, Down, Left, Right
+
+}
+
+val letterToDirection = mapOf(
+    'R' to Right,
+    'L' to Left,
+    'U' to Up,
+    'D' to Down
+)
+val directionToLetter = letterToDirection.map { (k, v) ->
+    v to k
+}.toMap()
+
+fun Direction.reverse() = when (this) {
+    Up -> Down
+    Down -> Up
+    Left -> Right
+    Right -> Left
 }
 
 data class Move(val location: Location, val direction: Direction) {
