@@ -2,6 +2,8 @@ import Direction.Down
 import Direction.Up
 
 fun main() {
+    data class Dig(val direction: Direction, val count: Long)
+
     val day = "Day18"
 
     operator fun <T> Array<Array<T>>.set(location: Location, value: T) {
@@ -21,20 +23,25 @@ fun main() {
     fun part1(input: List<String>): Long {
         val maze = Array(500, { Array(500, { 0 }) })
 
-        val locations = mutableListOf(Location(maze.size / 2, maze[0].size / 2))
+        var currentLocation = Location(maze.size / 2, maze[0].size / 2)
+        val locations = mutableListOf<Location>()
 
-        input.forEach { line ->
+        val digs = input.map { line ->
             val (directionS, countS, colorS) = line.split(" ")
             val direction = letterToDirection.getValue(directionS.first())
-            val count = countS.toInt()
+            val count = countS.toLong()
             val color = colorS.replace("[#()]".toRegex(), "").toInt(16)
-            (1..count).forEach {
-                val next = locations.last().go(direction)
+            Dig(direction, count)
+        }
+        digs.forEach { dig ->
+            (1..dig.count).forEach {
+                val next = currentLocation.go(dig.direction)
                 if (maze[next] != 0) {
                     throw Exception("Already have something at ${next}")
                 }
-                maze[next] = color
+                maze[next] = 1
                 locations.add(next)
+                currentLocation = next
             }
         }
         println("Location count ${locations.size}")
@@ -89,7 +96,36 @@ fun main() {
     }
 
     fun part2(input: List<String>): Long {
-        return -1
+        val digs = input.map { line ->
+            val (countS, directionS) = line.split(" ")[2].replace("[#()]".toRegex(), "").splitAt(5)
+            val direction = letterToDirection.getValue("RDLU"[directionS.toInt()])
+            val count = countS.toLong(radix = 16)
+
+            Dig(direction, count)
+        }
+
+        val pathLength = digs.map { it.count }.sum()
+
+        var prev = Location(0, 0)
+        val locationsX = IntArray(pathLength.toInt(), { 0 })
+        val locationsY = IntArray(pathLength.toInt(), { 0 })
+        var i = 0
+        digs.forEach { (direction, count) ->
+            (1..count).forEach {
+                val next = prev.go(direction)
+                locationsX[i] = next.row
+                locationsY[i] = next.col
+                i += 1
+                prev = next
+            }
+        }
+
+        val area = Math.abs((0..<locationsX.size).fold(0L) { acc, i ->
+            val nextI = (i + 1) % locationsX.size
+            acc + (locationsY[i].toLong() * locationsX[nextI].toLong()) - (locationsX[i].toLong() * locationsY[nextI].toLong())
+        }) / 2 // Gauss
+        val areaInside = area - (pathLength / 2) + 1 // Pick's theorem
+        return areaInside + pathLength
     }
 
     val testInput = readInput("${day}_test")
