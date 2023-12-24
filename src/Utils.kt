@@ -31,6 +31,16 @@ fun <T : Any> T.p(): T {
     return this
 }
 
+var shouldDebug: Boolean = System.getProperty("debug").toBoolean()
+
+fun debug(s: Any?) {
+    if (shouldDebug) {
+        println(s)
+    }
+}
+
+fun Any?.db() = debug(this)
+
 fun <T : Any> T.assertEqual(that: T): T {
     check(this == that) { "Got ${this}, but expected ${that}" }
     return this;
