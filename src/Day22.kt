@@ -1,27 +1,6 @@
 fun main() {
     val day = "Day22"
 
-    fun <T, I> Iterable<T>.chunked(chunkIndicator: (T) -> I): Iterable<List<T>> {
-        val underlyingSequence = this
-        return sequence {
-            val buffer = mutableListOf<T>()
-            var lastPredicate: I? = null
-
-            for (current in underlyingSequence) {
-                val curPredicate = chunkIndicator(current)
-                if (lastPredicate != curPredicate && buffer.isNotEmpty()) {
-                    yield(buffer.toList())
-                    buffer.clear()
-                }
-                buffer.add(current)
-                lastPredicate = curPredicate
-            }
-            if (buffer.isNotEmpty()) {
-                yield(buffer)
-            }
-        }.asIterable()
-    }
-
     data class Location3D(val x: Int, val y: Int, val z: Int) {
         override fun toString(): String = "$x,$y,$z"
     }
