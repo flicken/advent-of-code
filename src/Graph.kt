@@ -66,3 +66,31 @@ fun <T : Any> Graph<T>.search(
             }
     }
 }
+
+fun <T : Any> Graph<T>.dfsMaximize(
+    start: T,
+    onVisited: (T) -> Unit = {},
+    goalFunction: (T) -> Boolean = { false },
+): Int {
+    val route = mutableSetOf(start)
+
+    fun maximize(point: T): Int {
+        var maxCost = Int.MIN_VALUE
+        onVisited(point)
+
+        if (goalFunction(point)) return 0
+
+        for (next in neighborsOf(point)) {
+            val (node, cost) = next
+
+            if (!route.add(node)) continue
+
+            maxCost = maxOf(maxCost, maximize(node) + cost)
+            route.remove(node)
+        }
+
+        return maxCost
+    }
+
+    return maximize(start)
+}

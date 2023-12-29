@@ -11,8 +11,10 @@ data class Location(val row: Int, val col: Int) {
 
 enum class Direction {
     Up, Down, Left, Right
-
 }
+
+fun Direction.allButReverse() = Direction.entries - reverse()
+
 
 val letterToDirection = mapOf(
     'R' to Right,
