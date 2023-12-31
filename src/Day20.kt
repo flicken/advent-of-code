@@ -7,6 +7,8 @@ enum class SwitchType {
 }
 
 
+typealias Memory = MutableMap<String, MutableMap<String, Boolean>>
+
 fun main() {
     val day = "Day20"
     val High = true
@@ -16,7 +18,7 @@ fun main() {
 
     data class Module(val type: SwitchType, val outputs: List<String>)
 
-    fun buildMachine(input: List<String>): Pair<Map<String, Module>, MutableMap<String, Any>> {
+    fun buildMachine(input: List<String>): Pair<Map<String, Module>, Memory> {
         val modules = input.map {
             it.split(" -> ").let { (name, output) ->
                 when (name[0]) {
@@ -34,17 +36,17 @@ fun main() {
             }
         }
 
-        val memory = mutableMapOf<String, Any>()
+        val memory: Memory = mutableMapOf()
         modules.forEach { (name, module) ->
             when (module.type) {
                 Broadcaster -> {}
 
                 FlipFlop -> {
-                    memory[name] = false
+                    memory[name] = mutableMapOf(name to false)
                 }
 
                 Conjunction -> {
-                    memory[name] = inputs.getValue(name).associateWith { false }
+                    memory[name] = inputs.getValue(name).associateWith { false }.toMutableMap()
                 }
             }
         }
@@ -55,9 +57,9 @@ fun main() {
 
     fun runMachine(
         modules: Map<String, Module>,
-        memory: MutableMap<String, Any>,
+        memory: Memory,
         ping: Ping,
-        debug: ((Ping, Int) -> Unit),
+        debug: ((Ping, Int) -> Unit) = { _, _ -> },
     ): List<Ping> {
         val pulses = mutableListOf(ping)
         var count = 0
@@ -70,7 +72,6 @@ fun main() {
             val module = modules[to]
 
             if (module == null) {
-//                println("$from sent $pulse to $to")
                 continue
             }
 
@@ -81,14 +82,14 @@ fun main() {
 
                 FlipFlop -> {
                     if (pulse == Low) {
-                        val newState = !(memory.getValue(to) as Boolean)
-                        memory[to] = newState
+                        val newState = !(memory.getValue(to).getValue(to))
+                        memory.getValue(to)[to] = newState
                         module.outputs.forEach { pulses.add(Ping(to, it, newState)) }
                     }
                 }
 
                 Conjunction -> {
-                    val state = memory.getValue(to) as MutableMap<String, Boolean>
+                    val state = memory.getValue(to)
                     state[from] = pulse
                     val newPulse = !state.values.all { it }
                     module.outputs.forEach { pulses.add(Ping(to, it, newPulse)) }
@@ -114,8 +115,21 @@ fun main() {
     fun part2(input: List<String>): Long {
         val (modules, memory) = buildMachine(input)
 
-        var count = 0L
-        return count
+        val lookAt = "cn"
+        val inputs = memory.getValue(lookAt).keys
+
+        var cycleCount = 0L
+        val firstHighPulse = mutableMapOf<String, Long>()
+        while (firstHighPulse.size < inputs.size) {
+            cycleCount += 1
+            runMachine(modules, memory, pushButton)
+                .filter { p -> p.to == lookAt && p.pulse == High }
+                .forEach { p ->
+                    firstHighPulse.putIfAbsent(p.from, cycleCount)
+                }
+        }
+
+        return firstHighPulse.values.lcm()
     }
 
     val testInput = readInput("${day}_test")
@@ -126,6 +140,5 @@ fun main() {
     val input = readInput(day)
     timeAndPrint { part1(input) }
 
-//    part2(testInput).assertEqual(-43L)
     timeAndPrint { part2(input) }
 }
