@@ -11,7 +11,7 @@ fun lcm(a: Long, b: Long): Long {
     return lcm
 }
 
-fun List<Long>.lcm(): Long {
+fun Iterable<Long>.lcm(): Long {
     return this.reduce { a, b -> lcm(a, b) }
 }
 
