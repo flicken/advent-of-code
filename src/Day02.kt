@@ -1,12 +1,35 @@
 fun main() {
     val day = "Day02"
 
+    fun Iterable<Int>.isSafe(): Boolean {
+        val diffs = this.windowed(2, 1).map { (a, b) -> a - b }
+        return (diffs.all { it == 1 || it == 2 || it == 3 }) || diffs.all { it == -1 || it == -2 || it == -3 }
+    }
+
+    fun <T> Iterable<T>.removeIt(i: Int): Iterable<T> {
+        val l = this.toMutableList()
+        l.removeAt(i)
+        return l
+    }
+
+    fun <T> Iterable<T>.anyIndex(f: (Int) -> Boolean): Boolean {
+        return this.withIndex().any { f(it.index) }
+    }
+
+    fun Iterable<Int>.isSafeDroppingOne(): Boolean {
+        return this.isSafe() || this.anyIndex{this.removeIt(it).isSafe()}
+    }
+
+    fun String.toReport(): List<Int> {
+        return this.split(" ").map{it.toInt()}
+    }
+
     fun part1(input: List<String>): Long {
-        return -1
+        return input.map{it.toReport()}.count{it.isSafe()}.toLong()
     }
 
     fun part2(input: List<String>): Long {
-        return -1
+        return input.map{it.toReport()}.count{it.isSafeDroppingOne()}.toLong()
     }
 
     val testInput = readInput("${day}_test")
@@ -15,6 +38,7 @@ fun main() {
     val input = readInput(day)
     timeAndPrint { part1(input) }
 
-    part2(testInput).assertEqual(-43L)
+    part2(testInput).assertEqual(4L)
     timeAndPrint { part2(input) }
 }
+
