@@ -5,11 +5,11 @@ day=${1:-$(date +%d)}
 
 # Copy the template file to the new file and replace "__DAY__" with the current day
 cp src/Template.kt src/"Day${day}.kt"
-sed -i  "s/__DAY__/$day/" src/"Day${day}.kt"
+gsed -i  "s/__DAY__/$day/" src/"Day${day}.kt"
 
 # Prompt for test answer and replace "-42" with the provided answer
 read -p "Enter the test answer: " test_answer
-sed -i "s/-42/$test_answer/" src/"Day${day}.kt"
+gsed -i "s/-42/$test_answer/" src/"Day${day}.kt"
 
 # Add to git
 git add "src/Day${day}.kt"
