@@ -34,7 +34,8 @@ fun Direction.reverse() = when (this) {
 }
 
 data class Move(val location: Location, val direction: Direction) {
-    fun move(d: Direction) = this.copy(this.location.go(d), d)
+    fun move(d: Direction) = this.copy(location = this.location.go(d), direction = d)
+    fun move() = this.copy(location = this.location.go(direction), direction = direction)
 }
 
 fun main() {
