@@ -88,3 +88,13 @@ fun String.splitAt(n: Int): Pair<String, String> {
     assert(n >= 0, { "${n} must be a positive number" })
     return Pair(this.take(n), this.drop(n))
 }
+
+fun <T> List<T>.allPairs(): Sequence<Pair<T, T>> {
+    val list = this
+    return sequence {
+        list.indices.forEach { i ->
+            for (j in i + 1 until list.size)
+                yield(list[i] to list[j])
+        }
+    }
+}

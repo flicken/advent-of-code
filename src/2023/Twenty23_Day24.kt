@@ -109,17 +109,6 @@ fun main() {
         return Hailstone(p, v.toVector())
     }
 
-    fun <T> List<T>.allPairs(): Sequence<Pair<T, T>> {
-        val list = this
-        return sequence {
-            list.indices.forEach { i ->
-                for (j in i + 1 until list.size)
-                    yield(list[i] to list[j])
-            }
-        }
-    }
-
-
     fun part1(input: List<String>, testArea: ClosedRange<BigDecimal>): Long {
         val hailstones = input.map { it.toHailstone() }
 
