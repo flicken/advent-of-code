@@ -1,12 +1,11 @@
 fun main() {
     val day = "Day11"
 
-    fun List<String>.countStones(blinks: Int): Long {
-        val cache = mutableMapOf<Pair<String, Int>, Long>()
+    val caches = MutableList(75 + 1) { mutableMapOf<String, Long>() }
 
+    fun List<String>.countStones(blinks: Int): Long {
         fun countToEnd(stone: String, blink: Int): Long {
-            val key = stone to blink
-            return cache.getOrPut(key) {
+            return caches[blink].getOrPut(stone) {
                 if (blink == 0) {
                     1L
                 } else if (stone == "0") {
@@ -31,7 +30,9 @@ fun main() {
 
     val input = readInput(day)
     timeAndPrint { part1(input) }
+    caches.sumOf{it.size}.p()
 
     timeAndPrint { part2(testInput) }
     timeAndPrint { part2(input) }
+    caches.sumOf{it.size}.p()
 }
