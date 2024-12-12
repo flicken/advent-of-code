@@ -94,3 +94,7 @@ fun <T : Any> Graph<T>.dfsMaximize(
 
     return maximize(start)
 }
+
+fun List<String>.allLocations(): List<Location> = this.flatMapIndexed { row, line ->
+    line.mapIndexed { col, c -> Location(row, col) }
+}

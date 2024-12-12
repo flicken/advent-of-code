@@ -33,6 +33,23 @@ fun Direction.reverse() = when (this) {
     Right -> Left
 }
 
+fun Direction.turn(leftOrRight: Direction) = when (leftOrRight) {
+    Right -> when (this) {
+        Up -> Right
+        Right -> Down
+        Down -> Left
+        Left -> Up
+    }
+    Left -> when (this) {
+        Up -> Left
+        Right -> Up
+        Down -> Right
+        Left -> Down
+    }
+    else -> throw IllegalArgumentException("Must be Left or Right")
+}
+
+
 data class Move(val location: Location, val direction: Direction) {
     fun move(d: Direction) = this.copy(location = this.location.go(d), direction = d)
     fun move() = this.copy(location = this.location.go(direction), direction = direction)
