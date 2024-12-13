@@ -9,6 +9,9 @@ data class Location(val row: Int, val col: Int) {
     }
 }
 
+operator fun Location.plus(b: Location) = Location(this.row + b.row, this.col + b.col)
+
+
 enum class Direction {
     Up, Down, Left, Right
 }
