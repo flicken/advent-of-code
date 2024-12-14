@@ -1,4 +1,5 @@
 import java.util.*
+import Direction.*
 
 typealias Cost<T> = Pair<T, Int>
 
@@ -98,3 +99,16 @@ fun <T : Any> Graph<T>.dfsMaximize(
 fun List<String>.allLocations(): List<Location> = this.flatMapIndexed { row, line ->
     line.mapIndexed { col, c -> Location(row, col) }
 }
+
+data class LocationL(val row: Long, val col: Long) {
+    fun go(direction: Direction) = when (direction) {
+        Up -> this.copy(row = this.row - 1)
+        Down -> this.copy(row = this.row + 1)
+        Left -> this.copy(col = this.col - 1)
+        Right -> this.copy(col = this.col + 1)
+    }
+}
+
+operator fun LocationL.plus(b: LocationL) = LocationL(this.row + b.row, this.col + b.col)
+operator fun LocationL.times(m: Long): LocationL = LocationL(this.row * m, this.col * m)
+

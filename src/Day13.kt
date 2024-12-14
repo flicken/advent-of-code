@@ -5,18 +5,6 @@ import java.math.BigInteger
 fun main() {
     val day = "Day13"
 
-    data class LocationL(val row: Long, val col: Long) {
-        fun go(direction: Direction) = when (direction) {
-            Up -> this.copy(row = this.row - 1)
-            Down -> this.copy(row = this.row + 1)
-            Left -> this.copy(col = this.col - 1)
-            Right -> this.copy(col = this.col + 1)
-        }
-    }
-
-    operator fun LocationL.plus(b: LocationL) = LocationL(this.row + b.row, this.col + b.col)
-    operator fun LocationL.times(m: Long): LocationL = LocationL(this.row * m, this.col * m)
-
     data class Machine(val a: LocationL, val b: LocationL, val prize: LocationL)
 
     fun List<String>.parse() = this.windowed(3, 4, true).map {
