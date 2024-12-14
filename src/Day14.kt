@@ -6,17 +6,7 @@ fun main() {
     data class Robot(val p: LocationL, val v: LocationL)
 
     fun LocationL.wrapInto(grid: LocationL): LocationL {
-        // TODO This is very inefficient
-        fun wrap(p: Long, g: Long): Long {
-            var newP = p
-            while (newP <= 0) {
-                newP += g
-            }
-            while (newP >= g) {
-                newP -= g
-            }
-            return newP
-        }
+        fun wrap(p: Long, size: Long) = ((p % size) + size) % size
         return LocationL(wrap(this.row, grid.row), wrap(this.col, grid.col))
     }
 
@@ -119,6 +109,10 @@ fun main() {
             if (withNeighbors > (robots.size - (robots.size / 2))) {
                 println("${count} has ${withNeighbors}")
                 File("${count.toString().padStart(5, '0')}.txt").writeText(grid.show(moved, false))
+            }
+            if (locations.size == moved.size) {
+                println("${count} No robots overlap")
+                throw IllegalStateException("No robots overlap")
             }
         }
         return -1
