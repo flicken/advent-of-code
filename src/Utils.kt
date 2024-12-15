@@ -46,6 +46,11 @@ fun <T : Any> T.assertEqual(that: T): T {
     return this;
 }
 
+fun <T : Comparable<T>> T.assertLessThan(that: T): T {
+    check(this < that) { "Got ${this}, but expected less than ${that}" }
+    return this;
+}
+
 fun <T> List<T>.replaceAt(index: Int, block: (T) -> T): List<T> {
     return this.mapIndexed { row, line ->
         if (row == index) block(line) else line
