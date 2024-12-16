@@ -112,3 +112,13 @@ data class LocationL(val row: Long, val col: Long) {
 operator fun LocationL.plus(b: LocationL) = LocationL(this.row + b.row, this.col + b.col)
 operator fun LocationL.times(m: Long): LocationL = LocationL(this.row * m, this.col * m)
 
+fun Iterable<String>.findLocationOrThrow(char: Char): Location {
+    this.forEachIndexed { row, line ->
+        line.forEachIndexed { col, c ->
+            if (c == char) {
+                return Location(row, col)
+            }
+        }
+    }
+    throw IllegalStateException("Cannot find ${char}")
+}

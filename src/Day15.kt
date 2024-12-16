@@ -3,6 +3,16 @@ import Direction.*
 fun main() {
     val day = "Day15"
 
+    fun Iterable<Iterable<Char>>.findLocationOrThrow(char: Char): Location {
+    this.forEachIndexed { row, line ->
+        line.forEachIndexed { col, c ->
+            if (c == char) {
+                return Location(row, col)
+            }
+        }
+    }
+    throw IllegalStateException("Cannot find ${char}")
+}
     fun List<List<Char>>.show(): String = this.map{it.joinToString("")}.joinToString("\n")
 
     operator fun List<List<Char>>.get(location: Location): Char = this[location.row][location.col]
@@ -56,17 +66,7 @@ fun main() {
         return canPush
     }
 
-    fun List<List<Char>>.findRobot(): Location {
-        var location = Location(0, 0)
-        this.forEachIndexed { row, line ->
-            line.forEachIndexed { col, c ->
-                if (c == '@') {
-                    location = Location(row, col)
-                }
-            }
-        }
-        return location
-    }
+    fun List<List<Char>>.findRobot(): Location = this.findLocationOrThrow('@')
 
     fun List<String>.moveAndScore(moves: List<String>): Long {
         val warehouse = this.map { it.toCharArray().toMutableList() }.toMutableList()
