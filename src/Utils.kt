@@ -46,6 +46,11 @@ fun <T : Any> T.assertEqual(that: T): T {
     return this;
 }
 
+fun <T : Any> T.assertNotEqual(that: T): T {
+    check(this != that) { "Got ${this}, but which is not expected" }
+    return this;
+}
+
 fun <T : Comparable<T>> T.assertLessThan(that: T): T {
     check(this < that) { "Got ${this}, but expected less than ${that}" }
     return this;
