@@ -1,3 +1,4 @@
+import kotlin.math.abs
 
 fun main() {
     val day = "Day20"
@@ -33,47 +34,32 @@ fun main() {
         return result.path()!!.path
     }
 
-    data class Cheat(val start: Location, val end: Location)
+    fun countCheats(input: List<String>, minSavings: Int, maxCheatLength: Int): Long {
+        val path = input.shortestPath(input.findLocationOrThrow('S'), input.findLocationOrThrow('E'))
 
-    fun part1(input: List<String>, minSavings: Long): Long {
-        val start = input.findLocationOrThrow('S')
-        val end = input.findLocationOrThrow('E')
+        val locationToTime = path.mapIndexed { index, location -> location to index }.toMap()
 
-        val path = input.shortestPath(start, end)
+        val count = path.indices.sumOf { i ->
+            ((i + 1)..<path.size).count { j ->
+                val a = path[i]
+                val b = path[j]
 
-        val locationToTime = path.mapIndexed { index, location ->  location to index}.toMap()
+                val cheatLength = abs(a.row - b.row) + Math.abs(a.col - b.col)
 
-        val pathSet = path.toSet()
-        val cheats = path.flatMap { l ->
-            Direction.entries.map{l.go(it).go(it)}.filter {
-                pathSet.contains(it)
-            }.map{ end ->
-                Cost(Cheat(l, end), locationToTime.getValue(end) - locationToTime.getValue(l) - 2)
+                (maxCheatLength >= cheatLength &&
+                        minSavings <= abs(locationToTime.getValue(a) - locationToTime.getValue(b)) - cheatLength)
             }
-        }.filter{it.second >= minSavings}
+        }
 
-        return cheats.size.toLong()
+        return count.toLong()
+    }
+
+    fun part1(input: List<String>, minSavings: Int): Long {
+        return countCheats(input, minSavings, 2)
     }
 
     fun part2(input: List<String>, minSavings: Int): Long {
-        val start = input.findLocationOrThrow('S')
-        val end = input.findLocationOrThrow('E')
-
-        val path = input.shortestPath(start, end)
-
-        val locationToTime = path.mapIndexed { index, location ->  location to index}.toMap()
-
-        val cheats = path.flatMap { cheatStart ->
-            path.mapNotNull { cheatEnd ->
-                val cheatTime = Math.abs(cheatStart.row - cheatEnd.row) + Math.abs(cheatStart.col - cheatEnd.col)
-                if (cheatTime <= 20)
-                    Cost(Cheat(cheatStart, cheatEnd), locationToTime.getValue(cheatEnd) - locationToTime.getValue(cheatStart) - cheatTime)
-                else
-                    null
-            }
-        }.filter{it.second >= minSavings}
-
-        return cheats.size.toLong()
+        return countCheats(input, minSavings, 20)
     }
 
     val testInput = readInput("${day}_test")
