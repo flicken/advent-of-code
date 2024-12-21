@@ -121,10 +121,23 @@ fun main() {
 
     val numericKeypad = listOf("789", "456", "123", "#0A")
 
+    val counts = mutableMapOf<Pair<String, Int>, Long>()
+
+    (expansion.entries).forEach {
+        counts[it.key to 1] = it.value.length.toLong() + 1
+    }
+
+    fun String.countKeypresses(robotCount: Int): Long =
+        counts.getOrPut(this to robotCount, {
+            return ("A" + this.expand()).windowed(2, 1).sumOf {
+                it.countKeypresses(robotCount - 1)
+            }
+        })
+
+
     fun List<String>.countKeypresses(robotCount: Int): Long {
         return this.sumOf { codeS ->
-            println()
-            codeS.p()
+            println("${codeS} counting ${robotCount}")
             val paths = numericKeypad.shortestPaths(codeS, Location(3, 2))
 
             paths.map { numericPresses ->
@@ -132,10 +145,7 @@ fun main() {
                 //                numericPresses.expand().p()
                 //                numericPresses.p()
                 //                codeS.p()
-                val expanded = (1..robotCount).fold(numericPresses, { acc, _a ->
-                    acc.expand().also{ println("${_a} ${it.length}")}
-                })
-                val length = expanded.length
+                val length = numericPresses.countKeypresses(robotCount)
                 val code = codeS.dropLast(1).toLong()
                 println("${codeS} = ${length} * $code")
                 code to length
