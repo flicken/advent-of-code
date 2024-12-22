@@ -1,22 +1,14 @@
 import Direction.*
-import java.math.BigInteger
-
-private fun <A, B>Pair<A, B>.swap(): Pair<B, A> = this.second to this.first
 
 fun main() {
     val day = "Day21"
 
-    val letterToDirection = mapOf(
-        '>' to Right,
-        '<' to Left,
-        '^' to Up,
-        'v' to Down
+    val directionToLetter = mapOf(
+        Right to '>',
+        Left to '<',
+        Up to '^',
+        Down to 'v',
     )
-
-    val directionToLetter = letterToDirection.map { (k, v) ->
-        v to k
-    }.toMap()
-
 
     data class SearchState(val buttonPresses: List<Char>, val location: Location, val direction: Direction, val lettersLeft: String) {
         fun press(): SearchState = copy(buttonPresses = buttonPresses + 'A', lettersLeft = lettersLeft.drop(1))
@@ -26,53 +18,40 @@ fun main() {
     operator fun List<String>.get(location: Location): Char? = this.getOrNull(location.row)?.getOrNull(location.col)
     fun List<String>.inBounds(location: Location) = this[location] !== null
 
-    val distanceBetweenDirections = mutableMapOf(
-        (Left to Down) to 1,
-        (Left to Right) to 2,
-        (Left to Up) to 2,
-
-        (Right to Up) to 2,
-        (Right to Down) to 1,
-
-        (Up to Down) to 1
-    )
-
-    distanceBetweenDirections.toList().forEach { entry ->
-        distanceBetweenDirections[entry.first.swap()] = entry.second
-    }
-    Direction.entries.forEach{distanceBetweenDirections[it to it] = 0}
-
     val expansion = mapOf(
-        "<<" to "",
-        "<>" to ">>",
-        "<v" to ">",
-        "<^" to ">^",
-        "<A" to ">>^", // >^>
+        "<<" to "A",
+        "<>" to ">>A",
+        "<v" to ">A",
+        "<^" to ">^A",
+        "<A" to ">>^A", // >^>
 
-        "v<" to "<",
-        "v>" to ">",
-        "vv" to "",
-        "v^" to "^",
-        "vA" to ">^", // ^>
+        "v<" to "<A",
+        "v>" to ">A",
+        "vv" to "A",
+        "v^" to "^A",
+        "vA" to "^>A", // >^
 
-        "><" to "<<",
-        ">>" to "",
-        ">v" to "<",
-        ">^" to "<^", // ^<
-        ">A" to "^",
+        "><" to "<<A",
+        ">>" to "A",
+        ">v" to "<A",
+        ">^" to "<^A", // ^<
+        ">A" to "^A",
 
-        "^<" to "v<",
-        "^>" to "v>", // >v
-        "^v" to "v",
-        "^^" to "",
-        "^A" to ">",
+        "^<" to "v<A",
+        "^>" to "v>A", // >v
+        "^v" to "vA",
+        "^^" to "A",
+        "^A" to ">A",
 
-        "A<" to "v<<", // v<< <v<
-        "A>" to "v",
-        "Av" to "<v", // v<
-        "A^" to "<",
-        "AA" to "",
+        "A<" to "v<<A", // v<< <v<
+        "A>" to "vA",
+        "Av" to "<vA", // v<
+        "A^" to "<A",
+        "AA" to "A",
     )
+
+    fun String.expand(): String =
+        ("A" + this).windowed(2).map{expansion.getValue(it)}.joinToString("")
 
     fun List<String>.shortestPaths(buttonPresses: String, start: Location): List<String> {
         val keypad = this
@@ -110,60 +89,47 @@ fun main() {
         return results
     }
 
-    fun String.expand(): String =
-        ("A" + this).windowed(2, 1).map{expansion.getValue(it)}.joinToString("A") + "A"
-
     val numericKeypad = listOf("789", "456", "123", "#0A")
 
-    val counts = mutableMapOf<Pair<String, Int>, BigInteger>()
+    val counts = mutableMapOf<Pair<String, Int>, Long>()
+    fun String.countKeypresses(robotCount: Int): Long {
+        if (robotCount == 0) {
+            return this.length.toLong()
+        }
 
-    (expansion.entries).forEach {
-        counts[it.key to 1] = (it.value.length + 1).toBigInteger()
+        return counts.getOrPut(this to robotCount, {
+            ("A" + this).windowed(2).sumOf {
+                expansion.getValue(it).countKeypresses(robotCount - 1)
+            }
+        })
     }
 
-    fun String.countKeypresses(robotCount: Int): BigInteger =
-        counts.getOrPut(this to robotCount, {
-             val expanded = "A" + this.expand()
-            val result = expanded.windowed(2, 1).sumOf {
-                it.countKeypresses(robotCount - 1)
-            }
-            println("'${this}' ${robotCount} = ${result}: ${expanded}")
-            result
-        })
-
-
-    fun List<String>.countKeypresses(robotCount: Int): BigInteger {
+    fun List<String>.countKeypresses(robotCount: Int): Long {
         return this.sumOf { codeS ->
             println("${codeS} counting ${robotCount}")
             val paths = numericKeypad.shortestPaths(codeS, Location(3, 2))
 
             paths.map { numericPresses ->
-                //                numericPresses.expand().expand().replace("v<<A", "<v<A").p()
-                //                numericPresses.expand().p()
-                //                numericPresses.p()
-                //                codeS.p()
-                val length = ("A" + numericPresses.expand()).windowed(2, 1).sumOf {
-                    it.countKeypresses(robotCount - 1)
-                }
+                val length = numericPresses.countKeypresses(robotCount)
                 val code = codeS.dropLast(1).toLong()
                 println("${codeS} = ${length} * $code")
                 code to length
-            }.map { it.second.times(it.first.toBigInteger()) }.min()
+            }.map { it.second.times(it.first) }.min()
         }
     }
 
-    fun part1(input: List<String>): BigInteger = input.countKeypresses(2)
-    fun part2(input: List<String>): BigInteger = input.countKeypresses(25)
+    fun part1(input: List<String>): Long = input.countKeypresses(2)
+    fun part2(input: List<String>): Long = input.countKeypresses(25)
 
     val testInput = readInput("${day}_test")
     val input = readInput(day)
 
-    part1(testInput).assertEqual(BigInteger.valueOf(126384L))
-    timeAndPrint { part1(input) }.also{check(it > BigInteger.valueOf(207912), {  "Must be larger than 207912"}) }
+    part1(testInput).assertEqual(126384L)
+    timeAndPrint { part1(input) }.also{check(it >207912, {  "Must be larger than 207912"}) }
 
     println("Part 2")
-//    timeAndPrint {  part2(testInput) }
-    timeAndPrint { part2(input) }
-        .also{check(it < BigInteger("480122988291409916821"), {"${it} must be smaller than 480122988291409916821"})}
-        .also{check(it < BigInteger("102910099284984466724"), {"${it} must be smaller than 102910099284984466724"})}
+    timeAndPrint { part2(input) }.also{ check(it > 0, {"Must be non-negative"}) }
+        .also{check(it != 117419486641522L, {"Already tried 117419486641522"})}
+        .also{check(it != 293923285495924L, {"Already tried 293923285495924"})}
+        .also{check(it != 735745809159558L, {"Already tried 735745809159558"})}
 }
