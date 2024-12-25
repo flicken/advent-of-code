@@ -20,9 +20,9 @@ fun main() {
         }.toLong()
     }
 
-    fun part2(input: List<String>): Long {
+    fun part2(input: List<String>): String {
         // No part 2, it's Xmas day!
-        return -1
+        return "Merry Xmas"
     }
 
     val testInput = readInput("${day}_test")
@@ -31,6 +31,6 @@ fun main() {
     val input = readInput(day)
     timeAndPrint { part1(input) }
 
-    part2(testInput).assertEqual(-43L)
+    part2(testInput).assertEqual("Merry Xmas")
     timeAndPrint { part2(input) }
 }
