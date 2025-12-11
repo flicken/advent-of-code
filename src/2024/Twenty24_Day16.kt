@@ -30,38 +30,6 @@ fun main() {
         return result.path()?.cost?.toLong() ?: throw IllegalStateException("Cannot find end")
     }
 
-    fun <T : Any> findAllPaths(graph: Graph<T>, searchResult: SearchResult<T>): Set<T> {
-        val allPathPoints = mutableSetOf<T>()
-
-        val maxCost = searchResult.path()?.cost ?: throw IllegalStateException()
-
-        val route = mutableSetOf(searchResult.start)
-
-        fun dfs(point: T) {
-            if (point == searchResult.destination) {
-                allPathPoints.addAll(route)
-                return
-            }
-
-            val currentCost = searchResult.searchTree.getValue(point).second
-
-            for ((nextNode) in graph.neighborsOf(point)) {
-                val (_,nextCost) = searchResult.searchTree[nextNode] ?: continue
-
-                if (nextCost < currentCost) continue // not a minimum path
-                if (nextCost > maxCost) continue // too long
-                if (!route.add(nextNode)) continue // already on path
-
-                dfs(nextNode)
-
-                route.remove(nextNode)
-            }
-        }
-
-        dfs(searchResult.start)
-
-        return allPathPoints
-    }
 
     fun List<String>.show(paths: Set<Location>): String =
         this.mapIndexed { row, line ->
@@ -90,7 +58,7 @@ fun main() {
         val shortestPath = graph.search(SearchState(start, Right),
             goalFunction = { it.location == end })
 
-        val locations = findAllPaths(graph, shortestPath).map{it.location}
+        val locations = graph.findAllPaths(shortestPath).map{it.location}
 
         return locations.toSet().size.toLong()
     }

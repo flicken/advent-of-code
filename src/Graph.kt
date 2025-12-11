@@ -68,6 +68,72 @@ fun <T : Any> Graph<T>.search(
     }
 }
 
+fun <T : Any> Graph<T>.allPaths(start: T, end: T): List<List<T>> {
+    val result = mutableListOf<List<T>>()
+
+    fun dfs(current: T, path: List<T>, visited: Set<T>) {
+        if (current == end) {
+            result += path
+            return
+        }
+
+        for (edge in neighborsOf(current)) {
+            val next = edge.first
+            if (next !in visited) {
+                dfs(next, path + next, visited + next)
+            }
+        }
+    }
+
+    dfs(start, listOf(start), setOf(start))
+    return result
+}
+
+fun <T : Any> Graph<T>.findAllPaths(search: SearchResult<T>): Set<T> {
+    val allPoints = mutableSetOf<T>()
+    val maxCost = search.path()?.cost
+        ?: error("SearchResult has no valid path")
+
+    val route = mutableSetOf(search.start)
+
+    fun dfs(node: T) {
+        if (node == search.destination) {
+            allPoints += route
+            return
+        }
+
+        val (_, curCost) = search.searchTree.getValue(node)
+
+        for ((nextNode) in neighborsOf(node)) {
+            val (_, nextCost) = search.searchTree[nextNode] ?: continue
+
+            // Prune non-optimal or too-long paths
+            if (nextCost !in curCost..maxCost) continue
+            if (!route.add(nextNode)) continue  // Already in route
+
+            dfs(nextNode)
+            route.remove(nextNode)
+        }
+    }
+
+    dfs(search.start)
+    return allPoints
+}
+
+fun <T : Any> Graph<T>.countPaths(from: T, to: T): Long {
+    val memo = mutableMapOf<T, Long>()
+
+    fun dfs(node: T): Long =
+        memo.getOrPut(node) {
+            if (node == to) 1L
+            else neighborsOf(node)
+                .map { it.first }
+                .sumOf(::dfs)
+        }
+
+    return dfs(from)
+}
+
 fun <T : Any> Graph<T>.dfsMaximize(
     start: T,
     onVisited: (T) -> Unit = {},
